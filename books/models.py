@@ -47,6 +47,8 @@ class BookItem(models.Model):
 
     book = models.ForeignKey(Book, related_name='bookItem', on_delete=models.PROTECT)
 
+    # user = models.ForeignKey(User,)
+
     borrowed_date = models.DateTimeField()
     due_date = models.DateTimeField()
 
@@ -58,14 +60,5 @@ class BookItem(models.Model):
         default='EB'
     )
     
-    # date_of_purchase = models.DateTimeField()
-
-    # status_choices = [
-    #     ('available', 'U can take this'),
-    #     ('borrowed', 'Sorry :c'),
-    # ]
-
-    # status = models.CharField(max_length=20, choices=status_choices, default='available')
-
     def __str__(self):
         return 'prestado'
