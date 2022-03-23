@@ -7,10 +7,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+
 
 
 from core.models import LibraryPlace
-
 from .models import Book, Rack, BookItem
 from .serializers import BookItemSerializer, BookSerializer, LibrarySerializer, RackSerializer  # noqa E501
 
@@ -119,11 +121,10 @@ class BorrowBook(APIView):
         # * aqui para prestarlo
 
         all_data = req.data.dict()
-        # print('---------------------------',all_data)
 
         book_id = all_data.get("book")
-        date1 = all_data.get("borrowed_date")
-        borrow_days = all_data.get("due_date")
+        date1 = parse_datetime(all_data.get("borrowed_date"))
+        borrow_days = parse_datetime(all_data.get("due_date"))
         borrow_pay = all_data.get("price")
 
         try:
@@ -131,7 +132,6 @@ class BorrowBook(APIView):
         except ObjectDoesNotExist:
             print("the book with given id doesn't exist.")
 
-        print(to_be_borrowed)
 
         book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
 
@@ -141,26 +141,26 @@ class BorrowBook(APIView):
             borrow = BookItem(
                 book = to_be_borrowed.get(),
                 # user = user in session,
-                borrowed_date =  date1,
-                due_date = borrow_days,
+                borrowed_date =  make_aware(date1),
+                due_date = make_aware(borrow_days),
                 price = borrow_pay,
                 # book_format = ,
             )
             borrow.save()
+
             print('me llevaste', borrow)
+
             to_be_borrowed.update(status='B')
+
+            # print(serializer.data)
+            final = BookItem.objects.filter(id=borrow.id)
+            serializer = BookItemSerializer(final, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         else:
             print('try with another book')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            
-        borrow = BookItem.objects.all()
-
-        serializerB = BookSerializer(to_be_borrowed, many=True)
-
-        serializerI = BookItemSerializer(borrow, many=True)
-
-        return Response(status=status.HTTP_200_OK)
-        return Response(serializerB.data,status=status.HTTP_200_OK)
+        
 
 
 
