@@ -1,4 +1,5 @@
 from cgi import print_form
+from django.shortcuts import render
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,42 +36,7 @@ class BookBy(APIView):
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, req, key):
-
-        # * aqui para prestarlo
-
-        print(key)
-        try:
-            to_be_borrowed = Book.objects.filter(id=key)
-        except ObjectDoesNotExist:
-            print("the book with given id doesn't exist.")
-
-        book_status = to_be_borrowed.values_list('status', flat=True).get(pk=1)
-
-        # borrow_days = days that have to read
-        # borrow_pay = how much is paying for the book
-
-        if book_status == 'A':
-            
-            # borrow = BookItem(
-            # # book = to_be_borrowed
-            # # user = user in session
-            # # borrowed_date =  date.now
-            # # due_date = borrow_days
-            # # price = borrow_pay
-            # book_format = 
-            # )
-            print('me llevaste')
-            # to_be_borrowed.update(status='B')
-        else:
-            print('try with another book')
-
-            
-
-
-        serializer = BookSerializer(to_be_borrowed, many=True)
-
-        return Response(serializer.data,status=status.HTTP_200_OK)
+    
 
 class BookList(APIView):
 
@@ -137,6 +103,65 @@ class RackByNum(APIView):
         rack = Rack.objects.filter(id=key)
         serializer = RackSerializer(rack, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BorrowBook(APIView):
+
+    def get(self, req):
+        # book = Book.objects.filter(id=key)
+        # serializer = BookSerializer(book, many=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+        return render(req,'bookissue.html',{'Issue':'test'})
+
+
+
+    def post(self, req):
+        # * aqui para prestarlo
+
+        all_data = req.data.dict()
+        # print('---------------------------',all_data)
+
+        book_id = all_data.get("book")
+        date1 = all_data.get("borrowed_date")
+        borrow_days = all_data.get("due_date")
+        borrow_pay = all_data.get("price")
+
+        try:
+            to_be_borrowed = Book.objects.filter(id=book_id)
+        except ObjectDoesNotExist:
+            print("the book with given id doesn't exist.")
+
+        print(to_be_borrowed)
+
+        book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
+
+
+        if book_status == 'A':
+
+            borrow = BookItem(
+                book = to_be_borrowed.get(),
+                # user = user in session,
+                borrowed_date =  date1,
+                due_date = borrow_days,
+                price = borrow_pay,
+                # book_format = ,
+            )
+            borrow.save()
+            print('me llevaste', borrow)
+            to_be_borrowed.update(status='B')
+        else:
+            print('try with another book')
+
+            
+        borrow = BookItem.objects.all()
+
+        serializerB = BookSerializer(to_be_borrowed, many=True)
+
+        serializerI = BookItemSerializer(borrow, many=True)
+
+        return Response(status=status.HTTP_200_OK)
+        return Response(serializerB.data,status=status.HTTP_200_OK)
+
 
 
 class BookItemListGeneric(generics.ListCreateAPIView):

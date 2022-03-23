@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BookBy, BookItemDetailGeneric, BookItemListGeneric, BookListGeneric, Catalog, LibraryDetailGeneric, LibraryListGeneric, RackByCat, RackByNum, RackList  # noqa E501
+from .views import *
 
 urlpatterns = [
 
@@ -15,6 +15,7 @@ urlpatterns = [
 
     path("catalog/", Catalog.as_view()),
 
+    path("borrow/", BorrowBook.as_view()),
     path("borrowed/", BookItemListGeneric.as_view()),
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
 
