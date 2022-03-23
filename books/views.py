@@ -51,6 +51,7 @@ class BookBy(APIView):
         # borrow_pay = how much is paying for the book
 
         if book_status == 'A':
+            
             # borrow = BookItem(
             # # book = to_be_borrowed
             # # user = user in session
