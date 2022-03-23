@@ -6,6 +6,14 @@ from .choices import BOOK_FORMAT, BOOK_STATUS, CATEG_CHOICES
 
 # Create your models here.
 
+# class User(django):
+
+    # borrowed_books: models.IntegerField(default=0)
+
+#     def __str__(self) -> str:
+#         return 'algo'
+
+
 class Rack(models.Model):
     category = models.CharField(max_length=20, choices=CATEG_CHOICES, default='No provided')
     description = models.TextField(default='No desc. provided')
@@ -59,6 +67,12 @@ class BookItem(models.Model):
         choices=BOOK_FORMAT,
         default='EB'
     )
+
+    # status = models.CharField(
+    #     max_length=1,
+    #     choices=BOOK_STATUS,
+    #     default='A'
+    # )
     
     def __str__(self):
         return 'prestado'

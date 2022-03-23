@@ -15,9 +15,10 @@ urlpatterns = [
 
     path("catalog/", Catalog.as_view()),
 
+    path("reserve/", BookReservation.as_view()),
+
     path("borrow/", BorrowBook.as_view()),
     path("borrowed/", BookItemListGeneric.as_view()),
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
-
 
 ]

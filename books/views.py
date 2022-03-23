@@ -106,15 +106,34 @@ class RackByNum(APIView):
         serializer = RackSerializer(rack, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class BookReservation(APIView):
+
+    def get(self, req):
+        return render(req,'reservation.html',{})
+
+
+    def post(self, req):
+        # * aqui para reserva
+        
+        all_data = req.data.dict()
+        book_id = all_data.get("book")
+
+        try:
+            book_to_reserve = Book.objects.filter(id=book_id)
+        except ObjectDoesNotExist:
+            print("the book with given id doesn't exist.")
+
+        # book_to_reserve.update(status='R')
+        return Response(status=status.HTTP_200_OK)
+        
+
+            
+
 
 class BorrowBook(APIView):
 
     def get(self, req):
-        # book = Book.objects.filter(id=key)
-        # serializer = BookSerializer(book, many=True)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-        return render(req,'bookissue.html',{'Issue':'test'})
-
+        return render(req,'bookissue.html',{})
 
 
     def post(self, req):
@@ -152,10 +171,12 @@ class BorrowBook(APIView):
 
             to_be_borrowed.update(status='B')
 
-            # print(serializer.data)
             final = BookItem.objects.filter(id=borrow.id)
             serializer = BookItemSerializer(final, many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
+        if book_status == 'R' | 'B':
+            print('this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it')
+            return render(req,'reservation.html',{})
         else:
             print('try with another book')
             return Response(status=status.HTTP_400_BAD_REQUEST)
