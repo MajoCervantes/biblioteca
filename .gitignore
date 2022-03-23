@@ -1,3 +1,9 @@
+
+.env
+env/
+
+/**.pdf
+
 env
 .idea
 *.pyc
@@ -5,3 +11,5 @@ __pycache__
 db.sqlite3
 .env
 venv
+.venv
+.vscode
