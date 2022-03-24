@@ -160,8 +160,16 @@ class BorrowBook(APIView):
         borrow_days = parse_datetime(all_data.get("due_date"))
         borrow_pay = all_data.get("price")
 
+        print(
+            book_id,
+            date1,
+            borrow_days ,
+            borrow_pay ,
+            '---------------------------------------'
+        )
+
         try:
-            to_be_borrowed = Book.objects.filter(id=book_id)
+            to_be_borrowed = BookItem.objects.filter(id=book_id)
         except ObjectDoesNotExist:
             context={
                 "name": "user_name_here",
@@ -172,18 +180,18 @@ class BorrowBook(APIView):
 
         book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
 
- 
         if book_status == 'A':
 
-            borrow = BookItem(
-                book = to_be_borrowed.get(),
-                # user = user in session,
-                borrowed_date =  make_aware(date1),
-                due_date = make_aware(borrow_days),
-                price = borrow_pay,
-                # book_format = ,
-            )
-            borrow.save()
+            # borrow = BookItem(
+                
+            #     book = to_be_borrowed.get(),
+            #     # user = user in session,
+            #     borrowed_date =  make_aware(date1),
+            #     due_date = make_aware(borrow_days),
+            #     price = borrow_pay,
+            #     # book_format = ,
+            # )
+            # borrow.save()
 
             print('me llevaste', borrow)
 
@@ -243,3 +251,62 @@ class Catalog(generics.ListAPIView):
         'author': ['contains'],
         'category': ['contains']
     }
+
+
+# class Book ()
+#   private String ISBN;
+#   private String title;
+#   private String subject;
+#   private String publisher;
+#   private String language;
+#   private int numberOfPages;
+#   private List<Author> authors;
+
+
+# class BookItem (ABC)
+# private String ISBN;
+#   private String title;
+#   private String subject;
+#   private String publisher;
+#   private String language;
+#   private int numberOfPages;
+#   private List<Author> authors;
+#   private String barcode;
+#   private boolean isReferenceOnly;
+#   private Date borrowed;
+#   private Date dueDate;
+#   private double price;
+#   private BookFormat format;
+#   private BookStatus status;
+#   private Date dateOfPurchase;
+#   private Date publicationDate;
+#   private Rack placedAt;
+
+#   class Book ()
+#   private String ISBN;
+#   private String title;
+#   private String subject;
+#   private String publisher;
+#   private String language;
+#   private int numberOfPages;
+#   private List<Author> authors;
+
+
+# class BookItem (ABC)
+# private String ISBN;
+#   private String title;
+#   private String subject;
+#   private String publisher;
+#   private String language;
+#   private int numberOfPages;
+#   private List<Author> authors;
+#   private String barcode;
+#   private boolean isReferenceOnly;
+#   private Date borrowed;
+#   private Date dueDate;
+#   private double price;
+#   private BookFormat format;
+#   private BookStatus status;
+#   private Date dateOfPurchase;
+#   private Date publicationDate;
+#   private Rack placedAt;

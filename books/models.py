@@ -34,13 +34,13 @@ class Book(models.Model):
 
     category = models.CharField(max_length=20, choices=CATEG_CHOICES, default='No provided')
 
-    rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
+    # rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
 
-    status = models.CharField(
-        max_length=1,
-        choices=BOOK_STATUS,
-        default='A'
-    )
+    # status = models.CharField(
+    #     max_length=1,
+    #     choices=BOOK_STATUS,
+    #     default='A'
+    # )
     
 
     def __str__(self):
@@ -67,12 +67,15 @@ class BookItem(models.Model):
         choices=BOOK_FORMAT,
         default='EB'
     )
+    
+    rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
 
-    # status = models.CharField(
-    #     max_length=1,
-    #     choices=BOOK_STATUS,
-    #     default='A'
-    # )
+
+    status = models.CharField(
+        max_length=1,
+        choices=BOOK_STATUS,
+        default='A'
+    )
     
     def __str__(self):
         return 'prestado'
