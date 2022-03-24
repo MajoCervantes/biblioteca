@@ -58,6 +58,14 @@ class BookItem(models.Model):
         choices=BOOK_FORMAT,
         default='Provide a format'
     )
+
+    rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
+
+    status = models.CharField(
+        max_length=1,
+        choices=BOOK_STATUS,
+        default='A'
+    )
     
     rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
 
