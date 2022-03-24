@@ -18,16 +18,23 @@
         {% csrf_token %}
         <label for="book">Book id:</label>
         <input type="text" name="book" class="form-control" id="book" required/>
-        <br>
+
+        <label for="format">category:</label>
+        <select name="format" class="form-control" id="format">
+          <option value="AB">Audiobook</option>
+          <option value="EB">Ebook</option>
+          <option value="HC">Hardcover</option>
+          <option value="JN">Journal</option>
+          <option value="MG">Magazine</option>
+          <option value="NW">Newspaper</option>
+          <option value="PB">Paperback</option>
+        </select>
 
         <label for="borrowed_date">Borrow date:</label>
         <input type="datetime-local" id="borrowed_date" name="borrowed_date">
 
         <label for="due_date">Due date:</label>
         <input type="datetime-local" id="due_date" name="due_date">
-
-        <label for="price">Price</label>
-        <input type="number" min="0.00" max="10000.00" step="0.01" id="price" name="price"/>
 
         <button type="submit">Submit</button>
       </form>

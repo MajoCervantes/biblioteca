@@ -40,13 +40,24 @@
         <input type="number" name="number_of_pages" class="form-control" id="number_of_pages" required/>
 
         <label for="category">category:</label>
-        <input type="text" name="category" class="form-control" id="category"/>
+        <select name="category" class="form-control" id="category">
+          <option value="ED">Education</option>
+          <option value="ENT">Entertainment</option>
+          <option value="FN">Finance</option>
+          <option value="FT">Fiction</option>
+          <option value="SC">Science</option>
+          <option value="TN">Technology</option>
+        </select>
 
         <label for="rack">rack:</label>
-        <input type="text" name="rack" class="form-control" id="rack" />
-
-        <label for="status">status:</label>
-        <input type="text" name="status" class="form-control" id="status"/>
+        <select name="rack" class="form-control" id="rack">
+          <option value="ED">Education</option>
+          <option value="ENT">Entertainment</option>
+          <option value="FN">Finance</option>
+          <option value="FT">Fiction</option>
+          <option value="SC">Science</option>
+          <option value="TN">Technology</option>
+        </select>
 
         <label for="price">Price</label>
         <input type="number" min="0.00" max="10000.00" step="0.01" id="price" name="price" required/>

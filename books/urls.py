@@ -22,7 +22,8 @@ urlpatterns = [
     path("reserve/", BookReservation.as_view()),
 
     path("borrow/", BorrowBook.as_view()),
-    path("borrowed/", BookItemListGeneric.as_view()),
+
+    path("allbooks/", BookItemListGeneric.as_view()),
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
 
     path("borrowby/<str:key>/", BorrowedByUser.as_view()),
