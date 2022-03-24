@@ -8,7 +8,6 @@ urlpatterns = [
 
     # * this for add book and its copies by given num
     path("addbooks/", CreateBookItems.as_view()),
-    # * this for add book and its copies by given num
 
     path("books/", BookListGeneric.as_view()),
     path("books/<str:key>/", BookBy.as_view()),
@@ -19,14 +18,22 @@ urlpatterns = [
 
     path("catalog/", Catalog.as_view()),
 
+
+    # TODO reserve a book
     path("reserve/", BookReservation.as_view()),
 
+    # * this one is for borrow a book
     path("borrow/", BorrowBook.as_view()),
 
+    # * this one is to see all BookItems
     path("allbooks/", BookItemListGeneric.as_view()),
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
 
-    path("borrowby/<str:key>/", BorrowedByUser.as_view()),
+    # TODO borrowed by user
+    # path("borrowby/<str:key>/", .as_view()),
+
+    # TODO return a book
+    # path("return/", .as_view()),
 
 
 ]

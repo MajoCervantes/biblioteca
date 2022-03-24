@@ -179,25 +179,26 @@ class BookReservation(APIView):
         all_data = req.data.dict()
         book_id = all_data.get("book")
 
-        # SELECT FROM bookItem WHERE book = book_to_reserve
-        # AND status = A
-
         try:
-            book_to_reserve = Book.objects.filter(id=book_id)
+            book_to_reserve = BookItem.objects.filter(Q(book=book_id) & Q(status="A")).first()
         except ObjectDoesNotExist:
             print("the book with given id doesn't exist.")
 
-        book_status = book_to_reserve.values_list('status', flat=True).get(pk=book_id)
 
-        if book_status == 'R' | 'B':
-            print('already reserved. add user to queue')
-        if book_status == 'A':
-            print('reserved or u can take it RN')
+        if book_to_reserve == None:
+            context={
+                "name": "user_name_here",
+                "error": "no book in the moment.",
+            }
+            return render(req,'book/reservation.html',context=context)
         else:
-            print("try with another book")
-
-        # book_to_reserve.update(status='R')
-        return Response(status=status.HTTP_200_OK)
+            book_to_reserve.status = "R"
+            book_to_reserve.save()
+            context={
+                "name": "user_name_here",
+                "success": "all yours.",
+            }
+            return render(req,'book/reservation.html',context=context)
         
 
             
