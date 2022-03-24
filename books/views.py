@@ -296,3 +296,24 @@ class Catalog(generics.ListAPIView):
     }
 
 
+class ReturnBook(APIView):
+
+    def get(self, req):
+        return render(req, 'book/return.html', {})
+
+
+
+    def post(self, req):
+        all_data = req.data.dict()
+        book_id = all_data.get("book")
+        print(book_id)
+
+        # book_to_return = BookItem.objects.get(Q(book=book_id) & Q(user?))
+        # book_to_return.status = "A"
+        # book_to_return.borrowed_date = clean date
+        # book_to_return.due_date = clean date
+        # book_to_return.save()
+        return render(req, 'book/return.html', {})
+
+
+
