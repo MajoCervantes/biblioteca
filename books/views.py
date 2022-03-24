@@ -125,6 +125,15 @@ class BookReservation(APIView):
         except ObjectDoesNotExist:
             print("the book with given id doesn't exist.")
 
+        book_status = book_to_reserve.values_list('status', flat=True).get(pk=book_id)
+
+        if book_status == 'R' | 'B':
+            print('already reserved. add user to queue')
+        if book_status == 'A':
+            print('reserved or u can take it RN')
+        else:
+            print("try with another book")
+
         # book_to_reserve.update(status='R')
         return Response(status=status.HTTP_200_OK)
         
@@ -163,7 +172,7 @@ class BorrowBook(APIView):
 
         book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
 
-
+ 
         if book_status == 'A':
 
             borrow = BookItem(

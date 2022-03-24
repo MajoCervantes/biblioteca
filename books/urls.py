@@ -9,6 +9,9 @@ urlpatterns = [
     path("books/", BookListGeneric.as_view()),
     path("books/<str:key>/", BookBy.as_view()),
 
+    # path("books/newbook/", algo.as_view()),
+    # path("books/delete/", algo.as_view()),
+
     path("racks/", RackList.as_view()),
     path("rack/category/<str:key>/", RackByCat.as_view()),
     path("rack/number/<int:key>/", RackByNum.as_view()),
