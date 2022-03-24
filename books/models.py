@@ -34,15 +34,6 @@ class Book(models.Model):
 
     category = models.CharField(max_length=20, choices=CATEG_CHOICES, default='No provided')
 
-    # rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
-
-    # status = models.CharField(
-    #     max_length=1,
-    #     choices=BOOK_STATUS,
-    #     default='A'
-    # )
-    
-
     def __str__(self):
         return self.title
 
@@ -57,15 +48,15 @@ class BookItem(models.Model):
 
     # user = models.ForeignKey(User,)
 
-    borrowed_date = models.DateTimeField()
-    due_date = models.DateTimeField()
+    borrowed_date = models.DateTimeField(null=True)
+    due_date = models.DateTimeField(null=True)
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     book_format = models.CharField(
         max_length=2,
         choices=BOOK_FORMAT,
-        default='EB'
+        default='Provide a format'
     )
     
     rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)

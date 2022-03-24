@@ -4,13 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Issue</title>
-    <style>
-      form {
-        width: 250px;
-        display: flex;
-        flex-direction: column;
-      }
-    </style>
+    
 </head>
 <body>
 {% block content %}
@@ -20,31 +14,53 @@
       <!-- <form action="/issuebooksubmission/" method="post"></form> -->
       <form method="post">
         {% csrf_token %}
-        <label for="book">Book</label>
-        <input type="text" name="book" class="form-control" id="book" required/>
+        
+        <label for="author">author:</label>
+        <input type="text" name="author" class="form-control" id="author" required/>
 
-        <label for="borrowed_date">Borrow date:</label>
-        <input type="datetime-local" id="borrowed_date" name="borrowed_date">
+        <label for="isbn">ISBN:</label>
+        <input type="text" name="isbn" class="form-control" id="isbn" required/>
 
-        <label for="due_date">Due date:</label>
-        <input type="datetime-local" id="due_date" name="due_date">
+        <label for="title">title:</label>
+        <input type="text" name="title" class="form-control" id="title" required/>
+
+        <label for="abstract">abstract:</label>
+        <input type="text" name="abstract" class="form-control" id="abstract" required/>
+        
+        <label for="editorial">editorial:</label>
+        <input type="text" name="editorial" class="form-control" id="editorial" required/>
+
+        <label for="publication_date">publication date:</label>
+        <input type="date" name="publication_date" class="form-control" id="publication_date" required/>
+
+        <label for="language">language:</label>
+        <input type="text" name="language" class="form-control" id="language" required/>
+
+        <label for="number_of_pages">number of pages:</label>
+        <input type="number" name="number_of_pages" class="form-control" id="number_of_pages" required/>
+
+        <label for="category">category:</label>
+        <input type="text" name="category" class="form-control" id="category"/>
+
+        <label for="rack">rack:</label>
+        <input type="text" name="rack" class="form-control" id="rack" />
+
+        <label for="status">status:</label>
+        <input type="text" name="status" class="form-control" id="status"/>
 
         <label for="price">Price</label>
-        <input type="number" min="0.00" max="10000.00" step="0.01" id="price" name="price"/>
+        <input type="number" min="0.00" max="10000.00" step="0.01" id="price" name="price" required/>
 
+        <label for="copies">number of copies</label>
+        <input type="number" min="1" max="10" step="1" id="copies" name="copies" required/>
+        
         <button type="submit">Submit</button>
       </form>
     </div>
   </div>
 
-    {% if error %}
-        <div> {{ error }} </div>
-    {% endif %}
-    
-    {% if success %}
-        <div> {{ success }} </div>
-    {% endif %}
-
 {% endblock %}
 </body>
 </html>
+
+      

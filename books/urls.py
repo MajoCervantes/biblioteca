@@ -6,6 +6,10 @@ urlpatterns = [
     path("library/", LibraryListGeneric.as_view()),
     path("library/<int:pk>/", LibraryDetailGeneric.as_view()),
 
+    # * this for add book and its copies by given num
+    path("addbooks/", CreateBookItems.as_view()),
+    # * this for add book and its copies by given num
+
     path("books/", BookListGeneric.as_view()),
     path("books/<str:key>/", BookBy.as_view()),
 
@@ -22,5 +26,6 @@ urlpatterns = [
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
 
     path("borrowby/<str:key>/", BorrowedByUser.as_view()),
+
 
 ]
