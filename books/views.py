@@ -1,4 +1,3 @@
-from cgi import print_form
 from django.shortcuts import render
 from rest_framework import status, generics
 from rest_framework.response import Response
@@ -109,7 +108,7 @@ class RackByNum(APIView):
 class BookReservation(APIView):
 
     def get(self, req):
-        return render(req,'reservation.html',{})
+        return render(req,'book/reservation.html',{})
 
 
     def post(self, req):
@@ -117,6 +116,9 @@ class BookReservation(APIView):
         
         all_data = req.data.dict()
         book_id = all_data.get("book")
+
+        # SELECT FROM bookItem WHERE book = book_to_reserve
+        # AND status = A
 
         try:
             book_to_reserve = Book.objects.filter(id=book_id)
@@ -133,7 +135,10 @@ class BookReservation(APIView):
 class BorrowBook(APIView):
 
     def get(self, req):
-        return render(req,'bookissue.html',{})
+        context={
+            "name": "user_name_here",
+        }
+        return render(req,'book/borrow.html',context=context)
 
 
     def post(self, req):
@@ -149,7 +154,11 @@ class BorrowBook(APIView):
         try:
             to_be_borrowed = Book.objects.filter(id=book_id)
         except ObjectDoesNotExist:
-            print("the book with given id doesn't exist.")
+            context={
+                "name": "user_name_here",
+                "error": "the book with given id doesn't exist.",
+            }
+            return render(req,'book/borrow.html',context=context)
 
 
         book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
@@ -173,13 +182,27 @@ class BorrowBook(APIView):
 
             final = BookItem.objects.filter(id=borrow.id)
             serializer = BookItemSerializer(final, many=True)
-            return Response(serializer.data,status=status.HTTP_200_OK)
+
+            context={
+                "name": "user_name_here",
+                "success": "its all yours",
+            }
+            # return Response(serializer.data,status=status.HTTP_200_OK)
+            return render(req,'book/borrow.html',context=context)
         if book_status == 'R' | 'B':
-            print('this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it')
-            return render(req,'reservation.html',{})
+            context={
+                "name": "user_name_here",
+                "error": "this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it"
+            }
+            # ↑ this msg n' redirect to ↓
+            return render(req,'book/reservation.html',context=context)
         else:
-            print('try with another book')
+            context={
+                "name": "user_name_here",
+                "error": "try with another book"
+            }
             return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(req,'book/borrow.html',context=context)
 
         
 
@@ -195,6 +218,11 @@ class BookItemDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = BookItem.objects.all()
     serializer_class = BookItemSerializer
+
+class BorrowedByUser(APIView):
+
+    def get(self, req):
+        return Response(status=status.HTTP_200_OK)
 
 
 class Catalog(generics.ListAPIView):

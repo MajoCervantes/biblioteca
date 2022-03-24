@@ -21,4 +21,6 @@ urlpatterns = [
     path("borrowed/", BookItemListGeneric.as_view()),
     path("borrowed/<int:pk>/", BookItemDetailGeneric.as_view()),
 
+    path("borrowby/<str:key>/", BorrowedByUser.as_view()),
+
 ]
