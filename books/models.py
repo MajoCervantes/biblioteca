@@ -56,7 +56,7 @@ class BookItem(models.Model):
     book_format = models.CharField(
         max_length=2,
         choices=BOOK_FORMAT,
-        default='Provide a format'
+        default='Format not provided yet',
     )
 
     rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
@@ -69,4 +69,4 @@ class BookItem(models.Model):
     )
     
     def __str__(self):
-        return 'prestado'
+        return str(self.book) + " | " + str(self.book_format) + " | " + str(self.status)
