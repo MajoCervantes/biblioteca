@@ -19,6 +19,67 @@ from .serializers import BookItemSerializer, BookSerializer, LibrarySerializer, 
 # Create your views here.
 
 # ? Class Views
+class CreateBookItems(APIView):
+    def get(self, req):
+        
+        return render(req, 'book/create.html', {})
+
+    def post(self, req):
+        all_data = req.data.dict()
+
+        #*create book
+        book_author = all_data.get("author")
+        book_isbn = all_data.get("isbn")
+        book_title = all_data.get("title")
+        book_abstract = all_data.get("abstract")
+        book_editorial = all_data.get("editorial")
+        book_publication_date = all_data.get("publication_date")
+        book_language = all_data.get("language")
+        book_number_of_pages = all_data.get("number_of_pages")
+        book_category = all_data.get("category")
+
+        new_book = Book(
+            author = book_author,
+            isbn = book_isbn,
+            title = book_title,
+            abstract = book_abstract,
+            editorial = book_editorial,
+            publication_date = book_publication_date,
+            language = book_language ,
+            number_of_pages = book_number_of_pages,
+            # library = ,
+            # category = book_category,
+        )
+
+        new_book.save()
+        # * new book created
+
+
+        # * create copies of the book
+        book_rack = all_data.get("rack")
+        book_status = all_data.get("status")
+        book_price = int(all_data.get("price"))
+        num_copies = int(all_data.get("copies"))
+
+
+        new_book_instance = Book.objects.filter(id=new_book.id)
+
+
+        copies = [ 
+            BookItem( 
+                book = new_book_instance.get(),
+                price = book_price,
+                # rack = book_rack,
+                status = book_status,
+            ) for number in range(num_copies)
+        ]
+        print(copies)
+
+        BookItem.objects.bulk_create(copies)
+        # * copies created in the db
+
+        return Response(status=status.HTTP_200_OK)
+
 class BookBy(APIView):
 
     def get(self, req, key):
@@ -168,58 +229,68 @@ class BorrowBook(APIView):
             '---------------------------------------'
         )
 
-        try:
-            to_be_borrowed = BookItem.objects.filter(id=book_id)
-        except ObjectDoesNotExist:
-            context={
-                "name": "user_name_here",
-                "error": "the book with given id doesn't exist.",
-            }
-            return render(req,'book/borrow.html',context=context)
+        # try:
+        #     to_be_borrowed = Book.objects.filter(id=book_id)
+        # except ObjectDoesNotExist:
+        #     context={
+        #         "name": "user_name_here",
+        #         "error": "the book with given id doesn't exist.",
+        #     }
+        #     return render(req,'book/borrow.html',context=context)
 
 
-        book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
+        
 
-        if book_status == 'A':
 
-            # borrow = BookItem(
+        # book_status = to_be_borrowed.values_list('status', flat=True).get(pk=book_id)
+
+        # if book_status == 'A':
+
+        #     # borrow = BookItem.objects.bulk_create(
+
+        #     # )
+
+        #     borrow = BookItem(
                 
-            #     book = to_be_borrowed.get(),
-            #     # user = user in session,
-            #     borrowed_date =  make_aware(date1),
-            #     due_date = make_aware(borrow_days),
-            #     price = borrow_pay,
-            #     # book_format = ,
-            # )
-            # borrow.save()
+        #         book = to_be_borrowed.get(),
+        #         # user = user in session,
+        #         borrowed_date =  make_aware(date1),
+        #         due_date = make_aware(borrow_days),
+        #         price = borrow_pay,
+        #         # book_format = ,
+        #     )
+        #     borrow.save()
 
-            print('me llevaste', borrow)
+        #     print('me llevaste', borrow)
 
-            to_be_borrowed.update(status='B')
+        #     to_be_borrowed.update(status='B')
 
-            final = BookItem.objects.filter(id=borrow.id)
-            serializer = BookItemSerializer(final, many=True)
+        #     final = BookItem.objects.filter(id=borrow.id)
+        #     serializer = BookItemSerializer(final, many=True)
 
-            context={
-                "name": "user_name_here",
-                "success": "its all yours",
-            }
-            # return Response(serializer.data,status=status.HTTP_200_OK)
-            return render(req,'book/borrow.html',context=context)
-        if book_status == 'R' | 'B':
-            context={
-                "name": "user_name_here",
-                "error": "this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it"
-            }
-            # ↑ this msg n' redirect to ↓
-            return render(req,'book/reservation.html',context=context)
-        else:
-            context={
-                "name": "user_name_here",
-                "error": "try with another book"
-            }
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-            return render(req,'book/borrow.html',context=context)
+        #     context={
+        #         "name": "user_name_here",
+        #         "success": "its all yours",
+        #     }
+        #     # return Response(serializer.data,status=status.HTTP_200_OK)
+        #     return render(req,'book/borrow.html',context=context)
+        # if book_status == 'R' | 'B':
+        #     context={
+        #         "name": "user_name_here",
+        #         "error": "this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it"
+        #     }
+        #     # ↑ this msg n' redirect to ↓
+        #     return render(req,'book/reservation.html',context=context)
+        # else:
+        #     context={
+        #         "name": "user_name_here",
+        #         "error": "try with another book"
+        #     }
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        #     return render(req,'book/borrow.html',context=context)
+            
+        return Response(status=status.HTTP_200_OK)
+
 
         
 
