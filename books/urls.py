@@ -1,3 +1,4 @@
+from ast import Return
 from django.urls import path
 from .views import *
 
@@ -19,7 +20,7 @@ urlpatterns = [
     path("catalog/", Catalog.as_view()),
 
 
-    # TODO reserve a book
+    # *this one is for reserve a book
     path("reserve/", BookReservation.as_view()),
 
     # * this one is for borrow a book
@@ -33,7 +34,7 @@ urlpatterns = [
     # path("borrowby/<str:key>/", .as_view()),
 
     # TODO return a book
-    # path("return/", .as_view()),
+    path("return/", ReturnBook.as_view()),
 
 
 ]
