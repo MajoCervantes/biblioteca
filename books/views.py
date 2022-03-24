@@ -7,7 +7,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import make_aware
+# from django.utils.timezone import make_aware
 
 
 
@@ -253,60 +253,3 @@ class Catalog(generics.ListAPIView):
     }
 
 
-# class Book ()
-#   private String ISBN;
-#   private String title;
-#   private String subject;
-#   private String publisher;
-#   private String language;
-#   private int numberOfPages;
-#   private List<Author> authors;
-
-
-# class BookItem (ABC)
-# private String ISBN;
-#   private String title;
-#   private String subject;
-#   private String publisher;
-#   private String language;
-#   private int numberOfPages;
-#   private List<Author> authors;
-#   private String barcode;
-#   private boolean isReferenceOnly;
-#   private Date borrowed;
-#   private Date dueDate;
-#   private double price;
-#   private BookFormat format;
-#   private BookStatus status;
-#   private Date dateOfPurchase;
-#   private Date publicationDate;
-#   private Rack placedAt;
-
-#   class Book ()
-#   private String ISBN;
-#   private String title;
-#   private String subject;
-#   private String publisher;
-#   private String language;
-#   private int numberOfPages;
-#   private List<Author> authors;
-
-
-# class BookItem (ABC)
-# private String ISBN;
-#   private String title;
-#   private String subject;
-#   private String publisher;
-#   private String language;
-#   private int numberOfPages;
-#   private List<Author> authors;
-#   private String barcode;
-#   private boolean isReferenceOnly;
-#   private Date borrowed;
-#   private Date dueDate;
-#   private double price;
-#   private BookFormat format;
-#   private BookStatus status;
-#   private Date dateOfPurchase;
-#   private Date publicationDate;
-#   private Rack placedAt;
