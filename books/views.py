@@ -188,10 +188,16 @@ class BookReservation(APIView):
         return render(req, 'book/reservation.html', {})
 
     def post(self, req):
+        req_data = req.data
+
+        if type(req_data) != dict:
+            data = req_data.dict()
+        else:
+            data = req_data
         # * aqui para reserva
 
-        all_data = req.data.dict()
-        book_id = all_data.get("book")
+        book_id = data.get("book")
+        
 
         try:
             book_to_reserve = BookItem.objects.filter(
@@ -227,14 +233,23 @@ class BorrowBook(APIView):
         # if user.borrowed_books > 5:
         # return 404
 
+        req_data = req.data
+
+        if type(req_data) != dict:
+            data = req_data.dict()
+        else:
+            data = req_data
+
         # * aqui para prestarlo
 
-        all_data = req.data.dict()
 
-        book_id = all_data.get("book")
-        book_format = all_data.get("format")
-        date1 = parse_datetime(all_data.get("borrowed_date"))
-        borrow_days = parse_datetime(all_data.get("due_date"))
+        book_id = data.get("book")
+        book_format = data.get("format")
+        date1 = parse_datetime(data.get("borrowed_date"))
+        borrow_days = parse_datetime(data.get("due_date"))
+
+        print(data, '---------------------------------')
+        print(date1, borrow_days, '---------------------------------')
 
         try:
             to_be_borrowed = BookItem.objects.filter(Q(book=book_id) & Q(status="A"))[0]
@@ -309,8 +324,15 @@ class ReturnBook(APIView):
         return render(req, 'book/return.html', {})
 
     def post(self, req):
-        all_data = req.data.dict()
-        book_id = all_data.get("book")
+
+        req_data = req.data
+
+        if type(req_data) != dict:
+            data = req_data.dict()
+        else:
+            data = req_data
+
+        book_id = data.get("book")
         print(book_id)
 
         # book_to_return = BookItem.objects.get(Q(book=book_id) & Q(user?))
