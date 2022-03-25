@@ -1,33 +1,37 @@
 from django.shortcuts import render
-from rest_framework import status, generics
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.dateparse import parse_datetime
-# from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware
+from django.contrib.auth.models import User
+from django_filters.rest_framework import DjangoFilterBackend
 
-
+from rest_framework import status, generics, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 
 from core.models import LibraryPlace
 from .models import Book, Rack, BookItem
-from .serializers import BookItemSerializer, BookSerializer, LibrarySerializer, RackSerializer  # noqa E501
-
+from .serializers import BookItemSerializer, BookSerializer, LibrarySerializer, RackSerializer, UserSerializer  # noqa E501
+from .permissions import IsLibrarian, IsMember
 
 # Create your views here.
 
 # ? Class Views
+
+
 class CreateBookItems(APIView):
     def get(self, req):
-        
+
         return render(req, 'book/create.html', {})
 
     def post(self, req):
         all_data = req.data.dict()
 
-        #* 1 create book
+        # * 1 create book
         book_author = all_data.get("author")
         book_isbn = all_data.get("isbn")
         book_title = all_data.get("title")
@@ -39,22 +43,22 @@ class CreateBookItems(APIView):
         book_category = all_data.get("category")
 
         new_book = Book(
-            author = book_author,
-            isbn = book_isbn,
-            title = book_title,
-            abstract = book_abstract,
-            editorial = book_editorial,
-            publication_date = book_publication_date,
-            language = book_language ,
-            number_of_pages = book_number_of_pages,
+            author=book_author,
+            isbn=book_isbn,
+            title=book_title,
+            abstract=book_abstract,
+            editorial=book_editorial,
+            publication_date=book_publication_date,
+            language=book_language,
+            number_of_pages=book_number_of_pages,
             # library = ,
-            category = book_category,
+            category=book_category,
         )
 
         new_book.save()
         # * end1 new book created
 
-        # * 2 get rack 
+        # * 2 get rack
         book_rack = all_data.get("rack")
         rack_destination = Rack.objects.filter(category=book_rack).get()
         # * end2
@@ -63,15 +67,14 @@ class CreateBookItems(APIView):
         book_price = int(all_data.get("price"))
         num_copies = int(all_data.get("copies"))
 
-
         new_book_instance = Book.objects.filter(id=new_book.id)
 
+        copies = [
+            BookItem(
+                book=new_book_instance.get(),
+                price=book_price,
+                rack=rack_destination,
 
-        copies = [ 
-            BookItem( 
-                book = new_book_instance.get(),
-                price = book_price,
-                rack = rack_destination,
             ) for number in range(num_copies)
         ]
         print(copies)
@@ -80,6 +83,7 @@ class CreateBookItems(APIView):
         # * end3 copies created in the db
 
         return Response(status=status.HTTP_200_OK)
+
 
 class BookBy(APIView):
 
@@ -94,12 +98,11 @@ class BookBy(APIView):
             | Q(editorial__contains=key)
             | Q(category__contains=key)
             | Q(publication_date__contains=key)
-            )
-        
+        )
+
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
 
 class BookList(APIView):
 
@@ -135,10 +138,10 @@ class BookListGeneric(generics.ListCreateAPIView):
     serializer_class = BookSerializer
 
 
-# class BookDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
+class BookDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
-#     queryset = Book.objects.all()
-#     serializer_class = BookSerializer
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
 
 class RackList(APIView):
@@ -167,55 +170,51 @@ class RackByNum(APIView):
         serializer = RackSerializer(rack, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class BookReservation(APIView):
 
     def get(self, req):
-        return render(req,'book/reservation.html',{})
-
+        return render(req, 'book/reservation.html', {})
 
     def post(self, req):
         # * aqui para reserva
-        
+
         all_data = req.data.dict()
         book_id = all_data.get("book")
 
         try:
-            book_to_reserve = BookItem.objects.filter(Q(book=book_id) & Q(status="A")).first()
+            book_to_reserve = BookItem.objects.filter(
+                Q(book=book_id) & Q(status="A")).first()
         except ObjectDoesNotExist:
             print("the book with given id doesn't exist.")
 
-
         if book_to_reserve == None:
-            context={
+            context = {
                 "name": "user_name_here",
                 "error": "no book in the moment.",
             }
-            return render(req,'book/reservation.html',context=context)
+            return render(req, 'book/reservation.html', context=context)
         else:
             book_to_reserve.status = "R"
             book_to_reserve.save()
-            context={
+            context = {
                 "name": "user_name_here",
                 "success": "all yours.",
             }
-            return render(req,'book/reservation.html',context=context)
-        
-
-            
+            return render(req, 'book/reservation.html', context=context)
 
 
 class BorrowBook(APIView):
 
     def get(self, req):
-        context={
+        context = {
             "name": "user_name_here",
         }
-        return render(req,'book/borrow.html',context=context)
-
+        return render(req, 'book/borrow.html', context=context)
 
     def post(self, req):
         # if user.borrowed_books > 5:
-            # return 404
+        # return 404
 
         # * aqui para prestarlo
 
@@ -226,15 +225,14 @@ class BorrowBook(APIView):
         date1 = parse_datetime(all_data.get("borrowed_date"))
         borrow_days = parse_datetime(all_data.get("due_date"))
 
-
         try:
             to_be_borrowed = BookItem.objects.filter(Q(book=book_id) & Q(status="A"))[0]
         except ObjectDoesNotExist:
-            context={
+            context = {
                 "name": "user_name_here",
                 "error": "the book with given id doesn't exist.",
             }
-            return render(req,'book/borrow.html',context=context)
+            return render(req, 'book/borrow.html', context=context)
 
         to_be_borrowed.borrowed_date = make_aware(date1)
         to_be_borrowed.due_date = make_aware(borrow_days)
@@ -242,13 +240,12 @@ class BorrowBook(APIView):
         to_be_borrowed.book_format = book_format
         to_be_borrowed.save()
 
-
-        context={
+        context = {
             "name": "user_name_here",
             "success": "its all yours",
         }
         # return Response(serializer.data,status=status.HTTP_200_OK)
-        return render(req,'book/borrow.html',context=context)
+        return render(req, 'book/borrow.html', context=context)
 
         # if book_status == 'R' | 'B':
         #     context={
@@ -264,8 +261,6 @@ class BorrowBook(APIView):
         #     }
         #     return Response(status=status.HTTP_400_BAD_REQUEST)
         #     return render(req,'book/borrow.html',context=context)
-        
-
 
 
 class BookItemListGeneric(generics.ListCreateAPIView):
@@ -278,6 +273,7 @@ class BookItemDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = BookItem.objects.all()
     serializer_class = BookItemSerializer
+
 
 class BorrowedByUser(APIView):
 
@@ -301,8 +297,6 @@ class ReturnBook(APIView):
     def get(self, req):
         return render(req, 'book/return.html', {})
 
-
-
     def post(self, req):
         all_data = req.data.dict()
         book_id = all_data.get("book")
@@ -316,4 +310,10 @@ class ReturnBook(APIView):
         return render(req, 'book/return.html', {})
 
 
+# ? Permisos
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsLibrarian]

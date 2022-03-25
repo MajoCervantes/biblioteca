@@ -8,18 +8,20 @@ from .choices import BOOK_FORMAT, BOOK_STATUS, CATEG_CHOICES
 
 # class User(django):
 
-    # borrowed_books: models.IntegerField(default=0)
+# borrowed_books: models.IntegerField(default=0)
 
 #     def __str__(self) -> str:
 #         return 'algo'
 
 
 class Rack(models.Model):
-    category = models.CharField(max_length=20, choices=CATEG_CHOICES, default='No provided')
+    category = models.CharField(
+        max_length=20, choices=CATEG_CHOICES, default='No provided')
     description = models.TextField(default='No desc. provided')
 
     def __str__(self):
         return self.category
+
 
 class Book(models.Model):
     author = models.CharField(max_length=50, default='Anon')
@@ -30,23 +32,19 @@ class Book(models.Model):
     publication_date = models.DateField(default=None, null=True)
     language = models.CharField(max_length=50)
     number_of_pages = models.IntegerField()
-    # library = models.ForeignKey(LibraryPlace, on_delete=models.PROTECT, default='No')
+    library = models.ForeignKey(LibraryPlace, on_delete=models.PROTECT, default='No')
 
-    category = models.CharField(max_length=20, choices=CATEG_CHOICES, default='No provided')
+    category = models.CharField(
+        max_length=20, choices=CATEG_CHOICES, default='No provided')
 
     def __str__(self):
         return self.title
-
-
-
 
 
 class BookItem(models.Model):
     barcode = models.UUIDField(default=uuid4, unique=True)
 
     book = models.ForeignKey(Book, related_name='bookItem', on_delete=models.PROTECT)
-
-    # user = models.ForeignKey(User,)
 
     borrowed_date = models.DateTimeField(null=True)
     due_date = models.DateTimeField(null=True)
@@ -59,14 +57,14 @@ class BookItem(models.Model):
         default='Format not provided yet',
     )
 
-    rack = models.ForeignKey(Rack, related_name='book', null=True, on_delete=models.SET_NULL)
-
+    rack = models.ForeignKey(Rack, related_name='book',
+                             null=True, on_delete=models.SET_NULL)
 
     status = models.CharField(
         max_length=1,
         choices=BOOK_STATUS,
         default='A'
     )
-    
+
     def __str__(self):
         return str(self.book) + " | " + str(self.book_format) + " | " + str(self.status)
