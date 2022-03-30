@@ -15,7 +15,7 @@ BOOK_STATUS = (
     ('R', 'Reserved'),
 )
 
-CATEG_CHOICES = (
+CATEGORIES = (
     ('ED', 'Education'),
     ('ENT', 'Entertainment'),
     ('FN', 'Finance'),

@@ -3,24 +3,22 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from core.models import LibraryPlace
 from .models import Book, Rack, BookItem
 from .serializers import BookItemSerializer, BookSerializer, LibrarySerializer, RackSerializer, UserSerializer  # noqa E501
 from .permissions import IsLibrarian, IsMember
+from rest_framework.permissions import IsAuthenticated
+
 
 # Create your views here.
-
-# ? Class Views
 
 
 class CreateBookItems(APIView):
@@ -35,7 +33,6 @@ class CreateBookItems(APIView):
             data = req_data.dict()
         else:
             data = req_data
-
 
         # * 1 create book
         book_author = data.get("author")
@@ -57,7 +54,6 @@ class CreateBookItems(APIView):
             publication_date=book_publication_date,
             language=book_language,
             number_of_pages=book_number_of_pages,
-            # library = ,
             category=book_category,
         )
 
@@ -91,41 +87,6 @@ class CreateBookItems(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class BookBy(APIView):
-
-    def get(self, req, key):
-        # DONE buscar por su título, autor, sujeto(abstract), categoría y fecha de publicación.
-        # print('-------------------------------',key)
-        books = Book.objects.filter(
-            Q(author__contains=key)
-            | Q(id=key)
-            | Q(title__contains=key)
-            | Q(abstract__contains=key)
-            | Q(editorial__contains=key)
-            | Q(category__contains=key)
-            | Q(publication_date__contains=key)
-        )
-
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class BookList(APIView):
-
-    def get(self, req):
-        books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, req):
-        serializer = BookSerializer(data=req.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# ? Generic Views
 class LibraryListGeneric(generics.ListCreateAPIView):
 
     queryset = LibraryPlace.objects.all()
@@ -149,18 +110,15 @@ class BookDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-class RackListGeneric(generics.ListCreateAPIView):
 
+class RackListGeneric(generics.ListCreateAPIView):
     queryset = Rack.objects.all()
     serializer_class = RackSerializer
 
 
-class RackList(APIView):
-
-    def get(self, req):
-        racks = Rack.objects.all()
-        serializer = RackSerializer(racks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class RackDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Rack.objects.all()
+    serializer_class = RackSerializer
 
 
 class RackByCat(APIView):
@@ -183,6 +141,7 @@ class RackByNum(APIView):
 
 
 class BookReservation(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, req):
         return render(req, 'book/reservation.html', {})
@@ -197,7 +156,6 @@ class BookReservation(APIView):
         # * aqui para reserva
 
         book_id = data.get("book")
-        
 
         try:
             book_to_reserve = BookItem.objects.filter(
@@ -230,9 +188,6 @@ class BorrowBook(APIView):
         return render(req, 'book/borrow.html', context=context)
 
     def post(self, req):
-        # if user.borrowed_books > 5:
-        # return 404
-
         req_data = req.data
 
         if type(req_data) != dict:
@@ -241,7 +196,6 @@ class BorrowBook(APIView):
             data = req_data
 
         # * aqui para prestarlo
-
 
         book_id = data.get("book")
         book_format = data.get("format")
@@ -272,21 +226,6 @@ class BorrowBook(APIView):
         }
         # return Response(serializer.data,status=status.HTTP_200_OK)
         return render(req, 'book/borrow.html', context=context)
-
-        # if book_status == 'R' | 'B':
-        #     context={
-        #         "name": "user_name_here",
-        #         "error": "this book has been reserved or taken by someone else. gonna be available in BLABLABLA. book it"
-        #     }
-        #     # ↑ this msg n' redirect to ↓
-        #     return render(req,'book/reservation.html',context=context)
-        # else:
-        #     context={
-        #         "name": "user_name_here",
-        #         "error": "try with another book"
-        #     }
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
-        #     return render(req,'book/borrow.html',context=context)
 
 
 class BookItemListGeneric(generics.ListCreateAPIView):
@@ -343,10 +282,31 @@ class ReturnBook(APIView):
         return render(req, 'book/return.html', {})
 
 
-# ? Permisos
-
-
+# ? User permissions
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsLibrarian]
+
+    # ? Only the librarian can see all users
+    def get_permissions(self):
+        if self.request.method in ["GET"]:
+            return [IsLibrarian()]
+
+    # ? Overwrite method
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            # ? Get the last created user
+            user_list = list(User.objects.all().values())
+            last_user = user_list.pop()['username']
+
+            # ? add the last user to members group
+            group = Group.objects.get(name="Member")
+            user = User.objects.get(username=f'{last_user}')
+            user.groups.add(group)
+
+            return Response({"message": "User successful created"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
