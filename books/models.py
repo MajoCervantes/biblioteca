@@ -1,22 +1,12 @@
 from uuid import uuid4
 from django.db import models
 from core.models import LibraryPlace
-from .choices import BOOK_FORMAT, BOOK_STATUS, CATEG_CHOICES
-
-
-# Create your models here.
-
-# class User(django):
-
-# borrowed_books: models.IntegerField(default=0)
-
-#     def __str__(self) -> str:
-#         return 'algo'
+from .choices import BOOK_FORMAT, BOOK_STATUS, CATEGORIES
 
 
 class Rack(models.Model):
     category = models.CharField(
-        max_length=20, choices=CATEG_CHOICES, default='No provided')
+        max_length=20, choices=CATEGORIES, default='No provided')
     description = models.TextField(default='No desc. provided')
 
     def __str__(self):
@@ -32,17 +22,18 @@ class Book(models.Model):
     publication_date = models.DateField(default=None, null=True)
     language = models.CharField(max_length=50)
     number_of_pages = models.IntegerField()
-    library = models.ForeignKey(LibraryPlace, on_delete=models.PROTECT, default=None, null=True, blank=True)
+    library = models.ForeignKey(
+        LibraryPlace, on_delete=models.PROTECT, default=None, null=True, blank=True)
 
     category = models.CharField(
-        max_length=20, choices=CATEG_CHOICES, default='No provided')
+        max_length=20, choices=CATEGORIES, default='No provided')
 
     def __str__(self):
         return self.title
 
 
 class BookItem(models.Model):
-    barcode = models.UUIDField(default=uuid4)
+    barcode = models.UUIDField(primary_key=True, default=uuid4)
 
     book = models.ForeignKey(Book, related_name='bookItem', on_delete=models.PROTECT)
 
